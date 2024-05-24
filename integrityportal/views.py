@@ -12,3 +12,11 @@ def index(request):
             return render(request, 'student/index.html')
     else:
        pass
+
+
+def case_management(request):
+    return render(request, 'admin/case_management.html')
+
+
+def student_management(request):
+    return render(request, 'admin/students.html')
