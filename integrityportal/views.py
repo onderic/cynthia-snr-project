@@ -3,6 +3,23 @@ from django.contrib.auth.decorators import login_required
 from accounts.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from .forms import CaseForm
+from .models import Case
+
+
+
+@login_required
+def index(request):
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            # Admin role
+            return render(request, 'admin/admin_dashboard.html')
+        else:
+            # Regular user role
+            return render(request, 'student/index.html')
+    else:
+       pass
+
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -90,19 +107,19 @@ def delete_user(request, user_id):
     return redirect('student-managament')
 
 
-@login_required
-def index(request):
-    if request.user.is_authenticated:
-        if request.user.is_staff:
-            # Admin role
-            return render(request, 'admin/admin_dashboard.html')
-        else:
-            # Regular user role
-            return render(request, 'student/index.html')
-    else:
-       pass
-
-
+@user_passes_test(lambda u: u.is_superuser)
 def case_management(request):
-    return render(request, 'admin/case_management.html')
-
+    if request.method == 'POST':
+        form = CaseForm(request.POST)
+        print(form)
+        if form.is_valid():
+            case = form.save(commit=False)
+            case.student = request.user
+            case.save()
+            messages.success(request, 'Case reported successfully.')
+    else:
+        form = CaseForm()
+        messages.error(request, "something went wrong")
+    students = User.objects.filter(user_type='student').order_by('-created_at')
+    cases = Case.objects.all().order_by('-date_reported')
+    return render(request, 'admin/case_management.html', {"form": form, "students": students, "cases":cases})
