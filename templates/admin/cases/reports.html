@@ -1,0 +1,150 @@
+
+{% extends "layouts/_base_admin.html" %}
+
+{% block content %}
+        <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <!-- Go Back Arrow -->
+        <div class="flex items-center mb-4">
+            <a href="{% url 'admin-case-management' %}" class="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-600">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Go Back
+            </a>
+        </div>
+
+        <!-- Heading -->
+        <h2 class="text-title-md2 font-bold text-black dark:text-white">
+            Reports section
+        </h2>
+
+    <nav>
+      <ol class="flex items-center gap-2">
+        <li>
+          <a class="font-medium" href="/">Dashboard /</a>
+        </li>
+        <li class="font-medium text-primary">Reports</li>
+      </ol>
+    </nav>
+  </div>
+
+  <div class="container mx-auto p-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <!-- First Card -->
+      <div class="p-6 flex flex-col min-w-0 break-words bg-white border-0 shadow-xl top-1/100 dark:bg-gray-800 dark:shadow-dark-xl rounded-2xl bg-clip-border">
+        <h2 class="text-xl dark:text-white font-bold mb-4">Case Report Details</h2>
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <p class="text-gray-600 dark:text-white text-sm mb-2">Case Title</p>
+            <p class="text-lg dark:text-white font-semibold">{{case.case_title}}</p>
+        </div>
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <p class="text-gray-600 dark:text-white text-sm mb-2">Student ID</p>
+            <p class="text-lg dark:text-white font-semibold">{{case.student_id.student_id}}</p>
+        </div>
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <p class="text-gray-600 dark:text-white text-sm mb-2">Case Decision</p>
+            <p class="text-lg font-semibold">
+                {% if case.decision == 'suspended' %}
+                    <span class="text-red-600 dark:text-red-400">{{ case.decision }}</span>
+                {% elif case.decision == 'probation' %}
+                    <span class="text-yellow-600 dark:text-yellow-400">{{ case.decision }}</span>
+                {% elif case.decision == 'forgiven' %}
+                    <span class="text-green-600 dark:text-green-400">{{ case.decision }}</span>
+                {% else %}
+                    <span class="text-gray-600 dark:text-gray-400">{{ case.decision }}</span>
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="border-b border-gray-200 pb-4 mb-4">
+            <p class="text-gray-600 dark:text-white text-sm mb-2">Closed Date</p>
+            <p class="text-lg dark:text-white font-semibold">{{case.date_resolved}}</p>
+        </div>
+    </div>
+      <!-- Second Card -->
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+       <div class="mt-20">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Case Progress</h2>
+        <div class="w-full bg-gray-200 rounded-full dark:bg-gray-700">
+            <div class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style="width:
+            {% if case.status == 'open' %}
+                15%
+            {% elif case.status == 'in_progress' %}
+                75%
+            {% elif case.status == 'closed' %}
+                100%
+            {% else %}
+                0%
+            {% endif %}
+            ">
+            {% if case.status == 'open' %}
+                15%
+            {% elif case.status == 'in_progress' %}
+                75%
+            {% elif case.status == 'closed' %}
+                100%
+            {% else %}
+                0%
+            {% endif %}
+        </div>
+
+          </div>
+      </div>
+       </div>
+    </div>
+    </div>
+    <div class="flex justify-end mt-4" >
+        <div class="max-w-2xl w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+            <div class="p-6">
+              <div class="flex justify-between items-center mb-6">
+                <div>
+                  <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Suspension Letter</h2>
+                  <p class="text-sm text-gray-600 dark:text-gray-300">Date: May 26, 2024</p>
+                </div>
+                <img src="school-logo.png" alt="School Logo" class="h-12">
+              </div>
+              {% if case.decision == "suspended"%}
+              <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <div class="mb-6">
+                  <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Student Details</h3>
+                  <p class="text-gray-600 dark:text-gray-300">Name: John Doe</p>
+                  <p class="text-gray-600 dark:text-gray-300">ID: 12345678</p>
+                  <p class="text-gray-600 dark:text-gray-300">Class: 10th Grade</p>
+                </div>
+                <div class="mb-6">
+                  <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Suspension Message</h3>
+                  <p class="text-gray-600 dark:text-gray-300">
+                    Dear John Doe,
+                  </p>
+                  <p class="text-gray-600 dark:text-gray-300 mt-2">
+                    We regret to inform you that due to recent incidents and violations of school policies, you have been suspended from school for a period of two weeks, effective immediately. Please contact the school administration for further details and to discuss the terms of your suspension.
+                  </p>
+                </div>
+                <div class="mb-6">
+                  <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Resignation Message</h3>
+                  <p class="text-gray-600 dark:text-gray-300">
+                    If you have any concerns or wish to discuss the suspension, you may reach out to the principal's office during working hours. We hope to resolve this matter amicably and look forward to your cooperation.
+                  </p>
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+                  Send Suspension PDF
+                </button>
+              </div>
+              {% else %}
+              <div >
+                <h5 class="text-red-600 dark:text-red-400 font-semibold">
+                    SUSPENSION LETTER ONLY AVAILABLE WHEN THE CASE DECISION IS SET TO SUSPENDED
+                </h5>
+            </div>
+              {% endif %}
+            </div>
+          </div>
+    </div>
+  </div>
+  
+  
+
+
+{% endblock content %}
