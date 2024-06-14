@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Suspension Letter</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6; /* Adjust line height for better readability */
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .logo {
+            width: 80px;
+            height: auto;
+        }
+        .details, .message {
+            margin-bottom: 20px;
+        }
+        .message p {
+            margin: 15px 0; /* Increased margin between paragraphs */
+        }
+        .message h3 {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .signature {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h2>Suspension Letter</h2>
+            <img src="{% static 'images/logo.png' %}" alt="School Logo" class="logo">
+        </div>
+
+        <!-- Student Details -->
+        <div class="details">
+            <h3>Student Details</h3>
+            <p>Name: {{ student.first_name }} {{ student.last_name }}</p>
+            <p>ID: {{ student.student_id }}</p>
+            <p>Email: {{ student.email }}</p>
+          
+        </div>
+
+        <!-- Suspension Message -->
+        <div class="message">
+            <h3>Suspension Message</h3>
+            <p>
+                Dear {{ student.first_name }} {{ student.last_name }},
+            </p>
+            <p>
+                We regret to inform you that due to recent incidents and violations of school policies,
+                you have been suspended from school for a period of two weeks, effective immediately.
+                Please contact the school administration for further details and to discuss the terms of your suspension.
+            </p>
+            <p>
+                During this period, it is expected that you refrain from attending any school-related activities,
+                including classes and extracurricular activities. It is important to adhere to the terms outlined
+                in this suspension letter to ensure a smooth resolution of this matter.
+            </p>
+            <p>
+                If there are any questions or concerns regarding this decision, please do not hesitate to contact
+                the school administration at your earliest convenience.
+            </p>
+        </div>
+
+        <!-- Resignation Message -->
+        <div class="message">
+            <h3>Resignation Message</h3>
+            <p>
+                If you have any concerns or wish to discuss the suspension, you may reach out to the
+                principal's office during working hours. We hope to resolve this matter amicably and
+                look forward to your cooperation.
+            </p>
+            <p>
+                Please acknowledge receipt of this letter by signing and returning the attached acknowledgment form.
+                Your prompt attention to this matter is appreciated.
+            </p>
+            <p>
+                <strong>Sincerely</strong>,<br>
+                {{ user_first_name }} {{ user_last_name }}<br>
+                {{ user_email }}
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>

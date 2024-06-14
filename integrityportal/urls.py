@@ -17,6 +17,8 @@ urlpatterns = [
     path('edit_case/<int:case_id>/', views.edit_case, name='edit_case'),
     path('delete_case/<int:case_id>/', views.delete_case, name='delete_case'),
 
+    path('generate-suspension-pdf/<int:case_id>/', views.generate_suspension_pdf, name='generate_suspension_pdf'),
+
     # reports
     path('reports/<int:case_id>/', views.reports, name='reports'),
 

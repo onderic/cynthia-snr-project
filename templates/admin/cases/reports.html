@@ -1,6 +1,6 @@
 
 {% extends "layouts/_base_admin.html" %}
-
+{% load static %}
 {% block content %}
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <!-- Go Back Arrow -->
@@ -59,11 +59,45 @@
         </div>
     </div>
       <!-- Second Card -->
-    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
-       <div class="mt-20">
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Case Progress</h2>
-        <div class="w-full bg-gray-200 rounded-full dark:bg-gray-700">
-            <div class="bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style="width:
+      <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 flex flex-col items-center justify-center">
+      <div class="text-center mb-4">
+        <h3 class="text-3xl font-medium text-gray-800 dark:text-gray-200 capitalize">
+            {% if case.status == 'open' %}
+                The case is currently open.
+            {% elif case.status == 'in_progress' %}
+                The case is in progress.
+            {% elif case.status == 'closed' %}
+                The case has been closed.
+            {% else %}
+                The case status is unknown.
+            {% endif %}
+        </h3>
+    </div>
+      <div class="relative flex items-center justify-center h-64 w-64"> 
+        <!-- Increased size -->
+        <svg class="absolute top-0 left-0 h-full w-full transform -rotate-90" viewBox="0 0 36 36">
+            <circle
+                class="text-gray-300"
+                stroke-width="4"
+                fill="none"
+                cx="18"
+                cy="18"
+                r="15.9155"
+                stroke="currentColor"
+            />
+            <circle
+                class="text-blue-600"
+                stroke-width="4"
+                stroke-linecap="round"
+                fill="none"
+                cx="18"
+                cy="18"
+                r="15.9155"
+                stroke="currentColor"
+                style="stroke-dasharray: {% if case.status == 'open' %}15, 100{% elif case.status == 'in_progress' %}75, 100{% elif case.status == 'closed' %}100, 100{% else %}0, 100{% endif %};"
+            />
+        </svg>
+        <span class="text-2xl font-semibold text-blue-600">
             {% if case.status == 'open' %}
                 15%
             {% elif case.status == 'in_progress' %}
@@ -73,20 +107,9 @@
             {% else %}
                 0%
             {% endif %}
-            ">
-            {% if case.status == 'open' %}
-                15%
-            {% elif case.status == 'in_progress' %}
-                75%
-            {% elif case.status == 'closed' %}
-                100%
-            {% else %}
-                0%
-            {% endif %}
-        </div>
-
-          </div>
-      </div>
+        </span>
+    </div>
+    
        </div>
     </div>
     </div>
@@ -98,7 +121,7 @@
                   <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Suspension Letter</h2>
                   <p class="text-sm text-gray-600 dark:text-gray-300">Date: May 26, 2024</p>
                 </div>
-                <img src="school-logo.png" alt="School Logo" class="h-12">
+                <img src="{% static 'images/logo.png' %}" alt="School Logo" class="h-12">
               </div>
               {% if case.decision == "suspended"%}
               <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
@@ -125,10 +148,13 @@
                 </div>
               </div>
               <div class="flex justify-end">
-                <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
-                  Send Suspension PDF
-                </button>
-              </div>
+                <a href="{% url 'generate_suspension_pdf' case.id %}" target="_blank">
+                    <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+                        Export Suspension Letter
+                    </button>
+                </a>
+            </div>
+            
               {% else %}
               <div >
                 <h5 class="text-red-600 dark:text-red-400 font-semibold">

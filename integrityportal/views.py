@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from accounts.models import User
@@ -5,21 +6,59 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import CaseForm
 from .models import Case
+from django.template.loader import render_to_string
+from weasyprint import HTML
+from django.http import HttpResponse
+from .tasks import send_suspension_email  
+from django_q.tasks import async_task
 
 
 
-@login_required
 def index(request):
     if request.user.is_authenticated:
         if request.user.is_staff:
-            # Admin role
-            return render(request, 'admin/admin_dashboard.html')
+            students_count = User.objects.filter(user_type='student').count()
+            administrators_count = User.objects.filter(user_type='admin').count()
+            cases = Case.objects.all().count()
+
+            context = {
+                'cases': cases,
+                'students_count': students_count,
+                'administrators_count': administrators_count,
+                'cases': cases,
+            }
+            return render(request, 'admin/admin_dashboard.html', context)
         else:
-            # Regular user role
             return render(request, 'student/index.html')
     else:
-       pass
+        pass
 
+def generate_suspension_pdf(request, case_id):
+    case = get_object_or_404(Case, id=case_id)
+    student = case.student_id 
+
+    current_date = timezone.now().strftime('%B %d, %Y')
+
+    # Render the HTML template to a string
+    html_string = render_to_string('admin/cases/suspension_letter_template.html', {
+        'case': case, 
+        'student': student,  
+        'current_date': current_date,
+        'user_first_name': request.user.first_name,
+        'user_last_name': request.user.last_name,
+        'user_email': request.user.email,
+        })
+
+    # Generate PDF from the HTML string
+    html = HTML(string=html_string)
+    pdf = html.write_pdf()
+
+    async_task(send_suspension_email, student.email, pdf, f"{request.user.first_name} {request.user.last_name}")
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="suspension_letter.pdf"'
+
+    return response
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -172,3 +211,4 @@ def delete_case(request, case_id):
 def reports(request,case_id):
     case = get_object_or_404(Case, id=case_id)
     return render(request, 'admin/cases/reports.html', {'case': case})
+
