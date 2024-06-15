@@ -1398,10 +1398,6 @@ input:checked + .toggle-bg {
   margin-bottom: 1.5rem;
 }
 
-.mb-8 {
-  margin-bottom: 2rem;
-}
-
 .me-1 {
   margin-inline-end: 0.25rem;
 }
@@ -1570,10 +1566,6 @@ input:checked + .toggle-bg {
   height: 100vh;
 }
 
-.h-20 {
-  height: 5rem;
-}
-
 .max-h-full {
   max-height: 100%;
 }
@@ -1636,10 +1628,6 @@ input:checked + .toggle-bg {
 
 .max-w-2xl {
   max-width: 42rem;
-}
-
-.max-w-3xl {
-  max-width: 48rem;
 }
 
 .max-w-5xl {
@@ -2287,10 +2275,6 @@ input:checked + .toggle-bg {
 
 .text-center {
   text-align: center;
-}
-
-.font-sans {
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 .text-2xl {

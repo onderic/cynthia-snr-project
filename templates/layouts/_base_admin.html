@@ -41,16 +41,21 @@
                   <div>
                     <button type="button" class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" aria-expanded="false" data-dropdown-toggle="dropdown-user">
                       <span class="sr-only">Open user menu</span>
-                      <img class="w-8 h-8 rounded-full" src=/docs/images/people/profile-picture-5.jpg" alt="user photo">
+                      <div class="relative w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600">
+                        <svg aria-hidden="true" class="w-8 h-8 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M10 2a5 5 0 00-5 5v1a5 5 0 01-4 4.9V15a2 2 0 002 2h14a2 2 0 002-2v-2.1a5 5 0 01-4-4.9V7a5 5 0 00-5-5zm0 16a4 4 0 00-4-4h8a4 4 0 00-4 4zm-6-7.1V7a4 4 0 118 0v3.9a6.02 6.02 0 01-8 0z" clip-rule="evenodd" />
+                        </svg>
+                    </div>  
                     </button>
                   </div>
                   <div class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded shadow dark:bg-gray-700 dark:divide-gray-600" id="dropdown-user">
+                    {% if user.is_authenticated %}
                     <div class="px-4 py-3" role="none">
                       <p class="text-sm text-gray-900 dark:text-white" role="none">
-                        Neil Sims
+                        {{ user.first_name }}, {{ user.last_name }}
                       </p>
                       <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300" role="none">
-                        neil.sims@flowbite.com
+                        {{ user.email }}
                       </p>
                     </div>
                     <ul class="py-1" role="none">
@@ -60,13 +65,15 @@
                       <li>
                         <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Settings</a>
                       </li>
+                     
                       <li>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Earnings</a>
-                      </li>
-                      <li>
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">Sign out</a>
-                      </li>
+                        <form action="{% url 'logout' %}" method="post" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">
+                            {% csrf_token %}
+                            <button type="submit">Sign out</button>
+                        </form>
+                    </li>
                     </ul>
+                    {% endif %}
                   </div>
                 </div>
               </div>

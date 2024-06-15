@@ -10,28 +10,26 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 from django.http import HttpResponse
 from .tasks import send_suspension_email  
-from django_q.tasks import async_task
 
 
 
+
+@login_required
 def index(request):
-    if request.user.is_authenticated:
-        if request.user.is_staff:
-            students_count = User.objects.filter(user_type='student').count()
-            administrators_count = User.objects.filter(user_type='admin').count()
-            cases = Case.objects.all().count()
+    if request.user.is_staff:
+        students_count = User.objects.filter(user_type='student').count()
+        administrators_count = User.objects.filter(user_type='admin').count()
+        cases_count = Case.objects.all().count()
 
-            context = {
-                'cases': cases,
-                'students_count': students_count,
-                'administrators_count': administrators_count,
-                'cases': cases,
-            }
-            return render(request, 'admin/admin_dashboard.html', context)
-        else:
-            return render(request, 'student/index.html')
+        context = {
+            'cases_count': cases_count,
+            'students_count': students_count,
+            'administrators_count': administrators_count,
+        }
+        return render(request, 'admin/admin_dashboard.html', context)
     else:
-        pass
+        return render(request, 'student/index.html')
+    
 
 def generate_suspension_pdf(request, case_id):
     case = get_object_or_404(Case, id=case_id)
@@ -53,7 +51,7 @@ def generate_suspension_pdf(request, case_id):
     html = HTML(string=html_string)
     pdf = html.write_pdf()
 
-    async_task(send_suspension_email, student.email, pdf, f"{request.user.first_name} {request.user.last_name}")
+    (send_suspension_email, student.email, pdf, f"{request.user.first_name} {request.user.last_name}")
 
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="suspension_letter.pdf"'
@@ -210,5 +208,9 @@ def delete_case(request, case_id):
 @user_passes_test(lambda u: u.is_superuser)
 def reports(request,case_id):
     case = get_object_or_404(Case, id=case_id)
-    return render(request, 'admin/cases/reports.html', {'case': case})
+    student = case.student_id 
+    return render(request, 'admin/cases/reports.html', {
+        'case': case,
+        'student': student,
+    })
 

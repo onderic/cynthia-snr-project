@@ -119,7 +119,7 @@
               <div class="flex justify-between items-center mb-6">
                 <div>
                   <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Suspension Letter</h2>
-                  <p class="text-sm text-gray-600 dark:text-gray-300">Date: May 26, 2024</p>
+                  <p class="text-sm text-gray-600 dark:text-gray-300">Date: {{case.date_resolved}}</p>
                 </div>
                 <img src="{% static 'images/logo.png' %}" alt="School Logo" class="h-12">
               </div>
@@ -127,17 +127,24 @@
               <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <div class="mb-6">
                   <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Student Details</h3>
-                  <p class="text-gray-600 dark:text-gray-300">Name: John Doe</p>
-                  <p class="text-gray-600 dark:text-gray-300">ID: 12345678</p>
-                  <p class="text-gray-600 dark:text-gray-300">Class: 10th Grade</p>
+                  <p class="text-gray-600 dark:text-gray-300">Name: {{student.first_name}}  {{student.last_name}}</p>
+                  <p class="text-gray-600 dark:text-gray-300">Student ID:  {{student.student_id}}</p>
+                  <p class="text-gray-600 dark:text-gray-300">Email: {{student.email}}</p>
                 </div>
                 <div class="mb-6">
                   <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Suspension Message</h3>
                   <p class="text-gray-600 dark:text-gray-300">
-                    Dear John Doe,
+                    Dear  {{student.first_name}}  {{student.last_name}},
                   </p>
                   <p class="text-gray-600 dark:text-gray-300 mt-2">
-                    We regret to inform you that due to recent incidents and violations of school policies, you have been suspended from school for a period of two weeks, effective immediately. Please contact the school administration for further details and to discuss the terms of your suspension.
+                    We regret to inform you that due to recent incidents and violations of school policies, you have
+                    been suspended from school for a period of two weeks, effective immediately. Please contact
+                    the school administration for further details and to discuss the terms of your suspension.
+                    During this period, it is expected that you refrain from attending any school-related activities,
+                    including classes and extracurricular activities. It is important to adhere to the terms outlined in
+                    this suspension letter to ensure a smooth resolution of this matter.
+                    If there are any questions or concerns regarding this decision, please do not hesitate to contact
+                    the school administration at your earliest convenience. 
                   </p>
                 </div>
                 <div class="mb-6">

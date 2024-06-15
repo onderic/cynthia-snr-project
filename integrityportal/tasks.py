@@ -1,4 +1,6 @@
+
 from django.core.mail import EmailMessage
+
 
 def send_suspension_email(student_email, pdf, student_name):
     subject = 'Suspension Letter'
