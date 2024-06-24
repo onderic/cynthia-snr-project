@@ -32,31 +32,29 @@ def index(request):
     
 
 def generate_suspension_pdf(request, case_id):
-    case = get_object_or_404(Case, id=case_id)
-    student = case.student_id 
+    pass
+    # case = get_object_or_404(Case, id=case_id)
+    # student = case.student_id 
 
-    current_date = timezone.now().strftime('%B %d, %Y')
+    # current_date = timezone.now().strftime('%B %d, %Y')
 
-    # Render the HTML template to a string
-    html_string = render_to_string('admin/cases/suspension_letter_template.html', {
-        'case': case, 
-        'student': student,  
-        'current_date': current_date,
-        'user_first_name': request.user.first_name,
-        'user_last_name': request.user.last_name,
-        'user_email': request.user.email,
-        })
+    # html_string = render_to_string('admin/cases/suspension_letter_template.html', {
+    #     'case': case, 
+    #     'student': student,  
+    #     'current_date': current_date,
+    #     'user_first_name': request.user.first_name,
+    #     'user_last_name': request.user.last_name,
+    #     'user_email': request.user.email,
+    #     })
+    # html = HTML(string=html_string)
+    # pdf = html.write_pdf()
 
-    # Generate PDF from the HTML string
-    html = HTML(string=html_string)
-    pdf = html.write_pdf()
+    # (send_suspension_email, student.email, pdf, f"{request.user.first_name} {request.user.last_name}")
 
-    (send_suspension_email, student.email, pdf, f"{request.user.first_name} {request.user.last_name}")
+    # response = HttpResponse(pdf, content_type='application/pdf')
+    # response['Content-Disposition'] = 'attachment; filename="suspension_letter.pdf"'
 
-    response = HttpResponse(pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="suspension_letter.pdf"'
-
-    return response
+    # return response
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -214,3 +212,16 @@ def reports(request,case_id):
         'student': student,
     })
 
+
+def student_case(request, id):
+    student = get_object_or_404(User, id=id)
+    cases = Case.objects.filter(student_id=id)
+    return render(request, 'student/case.html', {'cases': cases, 'student': student})
+
+
+def case_detail(request, id):
+    case = get_object_or_404(Case, id=id)
+    context = {
+        'case': case,
+    }
+    return render(request, 'student/case_detail.html', context)

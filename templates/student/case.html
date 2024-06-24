@@ -1,0 +1,51 @@
+{% extends "layouts/_base_student.html" %}
+
+{% block content %}
+
+<div class="bg-gray-100 flex items-center justify-center py-10">
+    <div class="container mx-auto bg-white p-6 rounded-lg shadow-lg">
+        <h1 class="text-3xl font-bold text-center mb-8">Cases for Student: {{ student.student_id }}</h1>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200 text-gray-700">
+                        <th class="py-3 px-6 text-left">Case Title</th>
+                        <th class="py-3 px-6 text-left">Status</th>
+                        <th class="py-3 px-6 text-left">Hearing Date</th>
+                        <th class="py-3 px-6 text-left">Decision</th>
+                        <th class="py-3 px-6 text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    {% for case in cases %}
+                        <tr class="hover:bg-gray-100">
+                            <td class="py-4 px-6 border-b border-gray-200">{{ case.case_title }}</td>
+                            <td class="py-4 px-6 border-b border-gray-200">
+                                <span class="
+                                    {% if case.status == 'open' %} text-green-600 {% elif case.status == 'in_progress' %} text-yellow-600 {% elif case.status == 'closed' %} text-red-600 {% else %} text-gray-600 {% endif %}
+                                ">
+                                    {{ case.status }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 border-b border-gray-200">{{ case.hearing_date }}</td>
+                            <td class="py-4 px-6 border-b border-gray-200">
+                                <span class="
+                                    {% if case.decision == 'no_decision' %} text-gray-600 {% elif case.decision == 'suspended' %} text-red-600 {% elif case.decision == 'probation' %} text-yellow-600 {% elif case.decision == 'forgiven' %} text-green-600 {% else %} text-gray-600 {% endif %}
+                                ">
+                                    {{ case.decision }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 border-b border-gray-200 text-center">
+                                <a href="{% url 'case_detail' case.id %}" class="inline-block bg-blue-500 text-white font-semibold py-2 px-4 rounded hover:bg-blue-600 transition duration-300">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

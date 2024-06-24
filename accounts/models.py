@@ -28,9 +28,9 @@ class CustomUserManager(UserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True, blank=False)
-    first_name = models.CharField(max_length=255, blank=False, null=False, default='')
-    last_name = models.CharField(max_length=255, blank=False, null=False, default='')
-    student_id = models.CharField(max_length=255, blank=False, unique=True)
+    first_name = models.CharField(max_length=255, blank=True, null=True, default='')
+    last_name = models.CharField(max_length=255, blank=True, null=True, default='')
+    student_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
     user_type = models.CharField(max_length=50)
 
     is_active = models.BooleanField(default=True)
@@ -44,3 +44,4 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     EMAIL_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'user_type', 'student_id']
+

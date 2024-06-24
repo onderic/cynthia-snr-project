@@ -5,6 +5,8 @@ urlpatterns = [
     path('', views.index, name='index'),
 
     # users
+    path('student-case/<uuid:id>/',views.student_case, name="student-case" ),
+    path('case/<int:id>/', views.case_detail, name='case_detail'),
 
     # admin
    
