@@ -1,0 +1,63 @@
+<!-- templates/index.html -->
+
+{% extends "layouts/_base_admin.html" %}
+
+{% block content %}
+<div class="bg-gray-100 p-6">
+    <div class="w-full bg-white p-8 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold mb-6">Add Office</h1>
+        <form method="post" action="{% url 'add_office' %}">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-gray-700">Name</label>
+                <input type="text" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Office Head</label>
+                <input type="text" name="office_head" class="w-full px-4 py-2 border border-gray-300  rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700">Contact Email</label>
+                <input type="email" name="contact_email" class="w-full px-4 py-2 border border-gray-300  rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700">Add Office</button>
+        </form>
+    </div>
+
+    <div class="w-full mt-8 bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-xl font-bold mb-6">Office Listings</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-800 text-white">
+                    <tr>
+                        <th class="w-1/3 py-2 px-4 text-left">Name</th>
+                        <th class="w-1/3 py-2 px-4 text-left">Office Head</th>
+                        <th class="w-1/3 py-2 px-4 text-left">Contact Email</th>
+                        <th class="w-1/3 py-2 px-4 text-left">Actions</th> <!-- Add Actions column -->
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    {% for office in offices %}
+                    <tr class="border-b">
+                        <td class="py-2 px-4">{{ office.name }}</td>
+                        <td class="py-2 px-4">{{ office.office_head }}</td>
+                        <td class="py-2 px-4">{{ office.contact_email }}</td>
+                        <td class="py-2 px-4">
+                            <form method="post" action="{% url 'delete_office' office.id %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-2 px-4">No offices available.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+</div>
+{% endblock content %}

@@ -14,6 +14,12 @@ urlpatterns = [
     path('edit-student/<uuid:user_id>/',views.edit_student, name="edit-student" ),
     path('delete/<uuid:user_id>/', views.delete_user, name='delete-user'),
 
+    path('add_office', views.add_office_view, name='add_office'),
+    path('delete/<int:office_id>/', views.delete_office, name='delete_office'),
+
+    
+ 
+
     # cases
     path('admin-case-management',views.case_management, name="admin-case-management" ),
     path('edit_case/<int:case_id>/', views.edit_case, name='edit_case'),

@@ -10,7 +10,7 @@
      </svg>
      <h4 class="mb-2 mt-5 font-medium">Total Cases Handled</h4>
      <h3 class="mb-2 text-title-md font-bold text-black dark:text-white">
-      {{cases}}
+      {{cases_count}}
      </h3>
      <p class="flex items-center gap-1 text-sm font-medium">
        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -62,15 +62,54 @@
     </div>
 
 
-    <div class="flex items-center justify-center h-48 mb-4 rounded bg-gray-50 dark:bg-gray-800">
-      <p class="text-2xl text-gray-400 dark:text-gray-500">
-         <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
-         </svg>
-        
-      </p>
-   </div>
-
+    <section class=" dark:bg-gray-900 p-3 sm:p-5">
+      <div class="mx-auto ">
+        <h1 class="text-2xl font-bold mb-6">Latest Cases</h1>
+          <!-- Start coding here -->
+          <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
+             
+              <div class="overflow-x-auto">
+                  <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr class="bg-gray-800 text-white">
+                          <th class="py-3 px-4 text-left">Case Title</th>
+                          <th class="py-3 px-4 text-left">Email</th>
+                          <th class="py-3 px-4 text-left">Office</th>
+                          <th class="py-3 px-4 text-left">Hearing Date</th>
+                          <th class="py-3 px-4 text-left">Status</th>
+                        
+                      </tr>
+                      </thead>
+                      <tbody class="text-gray-700">
+                        {% for case in cases %}
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4">{{ case.case_title }}</td>
+                            <td class="py-3 px-4">{{ case.student_id }}</td>
+                            <td class="py-3 px-4">{{ case.office }}</td>
+                            <td class="py-3 px-4">{{ case.hearing_date }}</td>
+                            <td class="py-3 px-4">
+                                <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs">{{ case.status }}</span>
+                            </td>
+                          
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 px-6">No cases available.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                  </table>
+                  <div id="no-student-message" class="p-4 hidden text-center items-center ">
+                      <p class=" text-3xl font-bold">No student found.</p>
+                  </div>
+              </div>
+             
+          </div>
+      </div>
+     
+      </section>
+      
+   
 
 
 

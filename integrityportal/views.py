@@ -5,12 +5,12 @@ from accounts.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import CaseForm
-from .models import Case
+from .models import Case, Office
 from django.template.loader import render_to_string
 from weasyprint import HTML
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from .tasks import send_suspension_email  
-
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -20,15 +20,20 @@ def index(request):
         students_count = User.objects.filter(user_type='student').count()
         administrators_count = User.objects.filter(user_type='admin').count()
         cases_count = Case.objects.all().count()
+        cases = Case.objects.all().order_by('-date_reported')[:10]
 
         context = {
+            'cases': cases,
             'cases_count': cases_count,
             'students_count': students_count,
             'administrators_count': administrators_count,
         }
         return render(request, 'admin/admin_dashboard.html', context)
     else:
-        return render(request, 'student/index.html')
+        student = get_object_or_404(User, pk=request.user.pk)
+        student_case_count = Case.objects.filter(student_id=student).count()
+        cases = Case.objects.filter(student_id=student).order_by('-date_reported')[:5]
+        return render(request, 'student/index.html', {'student_case_count': student_case_count,"cases":cases})
     
 
 def generate_suspension_pdf(request, case_id):
@@ -163,9 +168,10 @@ def case_management(request):
     
     # Fetch students and cases
     students = User.objects.filter(user_type='student').order_by('-created_at')
+    offices = Office.objects.all()
     cases = Case.objects.all().order_by('-date_reported')
 
-    return render(request, 'admin/cases/case_management.html', {"form": form, "students": students, "cases": cases})
+    return render(request, 'admin/cases/case_management.html', {"form": form,"offices":offices, "students": students, "cases": cases})
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -179,6 +185,12 @@ def edit_case(request, case_id):
             case.status = request.POST.get('status')
             case.resolution = request.POST.get('resolution')
             case.decision = request.POST.get('decision')
+
+            office_id = request.POST.get('office')
+            if office_id:
+                office = Office.objects.get(id=office_id)
+                case.office = office
+
             case.save()
             
             messages.success(request, 'Case updated successfully.')
@@ -188,8 +200,10 @@ def edit_case(request, case_id):
             return redirect('admin-case-management')
     else:
         form = CaseForm(instance=case)
+
+        offices = Office.objects.all()
     
-    return render(request, 'admin/cases/edit_case.html', {"form": form, "case": case})
+    return render(request, 'admin/cases/edit_case.html', {"form": form, "case": case, 'offices': offices})
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -221,7 +235,38 @@ def student_case(request, id):
 
 def case_detail(request, id):
     case = get_object_or_404(Case, id=id)
+    office = case.office 
+    
     context = {
         'case': case,
+        'office': office,
     }
     return render(request, 'student/case_detail.html', context)
+
+
+@csrf_exempt
+def add_office_view(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        office_head = request.POST.get('office_head')
+        contact_email = request.POST.get('contact_email')
+        
+        # Create the office
+        Office.objects.create(name=name, office_head=office_head, contact_email=contact_email)
+        
+        return redirect('add_office') 
+
+    offices = Office.objects.all()
+    return render(request, 'admin/office.html', {'offices': offices})
+
+
+@csrf_exempt
+def delete_office(request, office_id):
+    if request.method == 'POST':
+        office = get_object_or_404(Office, id=office_id)
+        office.delete()
+        messages.success(request, 'Office deleted successfully.')
+    
+    return redirect('add_office') 
+
+
