@@ -1,5 +1,5 @@
 {% extends "layouts/_base_student.html" %}
-
+{% load static %}
 {% block content %}
 
 <div class="bg-gray-100 min-h-screen flex items-center justify-center py-10">
@@ -95,9 +95,9 @@
                 </div>
 
 
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <div class=" p-6">
                 <h2 class="text-xl flex items-center justify-center font-semibold mb-4">Case Progress</h2>
-             <div class="flex items-cflex items-center justify-center">
+             <div class="flex items-cflex items-center justify-center bg-white rounded-lg shadow-md p-8">
                 <div class=" h-64 w-64 relative">
                     <svg class="absolute top-0 left-0 h-full w-full transform -rotate-90" viewBox="0 0 36 36">
                         <circle
@@ -138,7 +138,69 @@
             </div>
             
             
-            <!-- You can add more cards for different aspects of the case as needed -->
+            <div class="flex justify-end mt-4" >
+                <div class="max-w-2xl w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+                    <div class="p-6">
+                      <div class="flex justify-between items-center mb-6">
+                        <div>
+                          <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Suspension Letter</h2>
+                          <p class="text-sm text-gray-600 dark:text-gray-300">Date: {{case.date_resolved}}</p>
+                        </div>
+                        <img src="{% static 'images/logo.png' %}" alt="School Logo" class="h-12">
+                      </div>
+                      {% if case.decision == "suspended"%}
+                      <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+                        {% if user.is_authenticated %}
+                        <div class="mb-6 ">
+                          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Student Details</h3>
+                          <p class="text-gray-600 dark:text-gray-300 capitalize">Name: {{user.first_name}}  {{user.last_name}}</p>
+                          <p class="text-gray-600 dark:text-gray-300 capitalize">Student ID:  {{user.student_id}}</p>
+                          <p class="text-gray-600 dark:text-gray-300">Email: {{user.email}}</p>
+                        </div>
+                        {% endif %}
+                        <div class="mb-6">
+                          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Suspension Message</h3>
+                          <p class="text-gray-600 dark:text-gray-300">
+                            Dear  {{student.first_name}}  {{student.last_name}},
+                          </p>
+                          <p class="text-gray-600 dark:text-gray-300 mt-2">
+                            We regret to inform you that due to recent incidents and violations of school policies, you have
+                            been suspended from school for a period of two weeks, effective immediately. Please contact
+                            the school administration for further details and to discuss the terms of your suspension.
+                            During this period, it is expected that you refrain from attending any school-related activities,
+                            including classes and extracurricular activities. It is important to adhere to the terms outlined in
+                            this suspension letter to ensure a smooth resolution of this matter.
+                            If there are any questions or concerns regarding this decision, please do not hesitate to contact
+                            the school administration at your earliest convenience. 
+                          </p>
+                        </div>
+                        <div class="mb-6">
+                          <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Resignation Message</h3>
+                          <p class="text-gray-600 dark:text-gray-300">
+                            If you have any concerns or wish to discuss the suspension, you may reach out to the principal's office during working hours. We hope to resolve this matter amicably and look forward to your cooperation.
+                          </p>
+                        </div>
+                      </div>
+                      <div class="flex flex-col items-start mt-10">
+                       
+                        <a href="{% url 'download_student_suspension_pdf' %}" target="_blank">
+                            <button class="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
+                              Dowload Letter
+                            </button>
+                        </a>
+                    </div>
+                    
+                    
+                      {% else %}
+                      <div >
+                        <h5 class="text-red-600 dark:text-red-400 font-semibold">
+                            SUSPENSION LETTER ONLY AVAILABLE FOR SUSPENDED STUDENTS
+                        </h5>
+                    </div>
+                      {% endif %}
+                    </div>
+                  </div>
+            </div>
         </div>
         
       

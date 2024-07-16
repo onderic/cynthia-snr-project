@@ -48,3 +48,13 @@ class Case(models.Model):
 
     def __str__(self):
         return self.case_title
+
+
+class SuspensionLetter(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Suspension Letter for {self.student.first_name} {self.student.last_name} (Case: {self.case.case_title})"

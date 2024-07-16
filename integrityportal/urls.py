@@ -27,6 +27,8 @@ urlpatterns = [
 
     path('generate-suspension-pdf/<int:case_id>/', views.generate_suspension_pdf, name='generate_suspension_pdf'),
 
+    path('download-suspension-pdf/', views.download_student_suspension_pdf, name='download_student_suspension_pdf'),
+
     # reports
     path('reports/<int:case_id>/', views.reports, name='reports'),
 

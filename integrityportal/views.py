@@ -1,3 +1,4 @@
+import os
 from django.utils import timezone
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -5,13 +6,17 @@ from accounts.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import CaseForm
-from .models import Case, Office
-from django.template.loader import render_to_string
-from weasyprint import HTML
-from django.http import HttpResponse, JsonResponse
-from .tasks import send_suspension_email  
+from .models import Case, Office, SuspensionLetter
 from django.views.decorators.csrf import csrf_exempt
-
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.lib.units import cm
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from django.utils import timezone
+from io import BytesIO
+from .mail import send_suspension_letter_email 
 
 
 @login_required
@@ -36,30 +41,193 @@ def index(request):
         return render(request, 'student/index.html', {'student_case_count': student_case_count,"cases":cases})
     
 
+@user_passes_test(lambda u: u.is_superuser)
+@login_required
 def generate_suspension_pdf(request, case_id):
-    pass
-    # case = get_object_or_404(Case, id=case_id)
-    # student = case.student_id 
+    case = get_object_or_404(Case, id=case_id)
+    student = case.student_id
 
-    # current_date = timezone.now().strftime('%B %d, %Y')
+    existing_letter = SuspensionLetter.objects.filter(student=student, case=case).first()
+    if existing_letter:
+        print(f"A suspension letter for this case already exists for {student.first_name}.")
 
-    # html_string = render_to_string('admin/cases/suspension_letter_template.html', {
-    #     'case': case, 
-    #     'student': student,  
-    #     'current_date': current_date,
-    #     'user_first_name': request.user.first_name,
-    #     'user_last_name': request.user.last_name,
-    #     'user_email': request.user.email,
-    #     })
-    # html = HTML(string=html_string)
-    # pdf = html.write_pdf()
+    current_date = timezone.now().strftime('%B %d, %Y')
 
-    # (send_suspension_email, student.email, pdf, f"{request.user.first_name} {request.user.last_name}")
+    # Create a buffer to hold the PDF
+    buffer = BytesIO()
+    p = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=cm, leftMargin=cm, topMargin=cm, bottomMargin=cm)
 
-    # response = HttpResponse(pdf, content_type='application/pdf')
-    # response['Content-Disposition'] = 'attachment; filename="suspension_letter.pdf"'
+    # Define styles for the PDF
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(name='Title', fontSize=18, leading=22, spaceAfter=14, fontName='Helvetica-Bold')
+    subtitle_style = ParagraphStyle(name='Subtitle', fontSize=14, leading=18, spaceAfter=10, fontName='Helvetica-Bold')
+    body_style = ParagraphStyle(name='Body', fontSize=12, leading=15, spaceAfter=12)
 
-    # return response
+    elements = []
+
+    # Header with Logo and Title
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(current_dir, 'logo', 'logo.png')
+    logo = Image(logo_path, width=60, height=40) 
+
+    header_table = Table([[logo, Paragraph("Suspension Letter", title_style)]])
+    header_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ALIGN', (1, 0), (1, 0), 'LEFT'),
+    ]))
+
+    elements.append(header_table)
+    elements.append(Spacer(1, 1 * cm))
+
+    # Student Details
+    elements.append(Paragraph("Student Details", subtitle_style))
+    elements.append(Paragraph(f"Name: {student.first_name} {student.last_name}", body_style))
+    elements.append(Paragraph(f"ID: {student.student_id}", body_style))
+    elements.append(Paragraph(f"Email: {student.email}", body_style))
+    elements.append(Paragraph(f"Date: {current_date}", body_style))
+    elements.append(Spacer(1, 1 * cm))
+
+    # Suspension Message
+    elements.append(Paragraph("Suspension Message", subtitle_style))
+    elements.append(Paragraph(f"Dear {student.first_name} {student.last_name},", body_style))
+    elements.append(Paragraph(
+        "We regret to inform you that due to recent incidents and violations of school policies, "
+        "you have been suspended from school for a period of two weeks, effective immediately. "
+        "Please contact the school administration for further details and to discuss the terms of your suspension.",
+        body_style))
+    elements.append(Paragraph(
+        "During this period, it is expected that you refrain from attending any school-related activities, "
+        "including classes and extracurricular activities. It is important to adhere to the terms outlined "
+        "in this suspension letter to ensure a smooth resolution of this matter.",
+        body_style))
+    elements.append(Paragraph(
+        "If there are any questions or concerns regarding this decision, please do not hesitate to contact "
+        "the school administration at your earliest convenience.",
+        body_style))
+    elements.append(Spacer(1, 1 * cm))
+
+    # Resignation Message
+    elements.append(Paragraph("Resignation Message", subtitle_style))
+    elements.append(Paragraph(
+        "If you have any concerns or wish to discuss the suspension, you may reach out to the "
+        "principal's office during working hours. We hope to resolve this matter amicably and "
+        "look forward to your cooperation.",
+        body_style))
+    elements.append(Paragraph(
+        "Please acknowledge receipt of this letter by signing and returning the attached acknowledgment form. "
+        "Your prompt attention to this matter is appreciated.",
+        body_style))
+    elements.append(Paragraph(
+        f"<strong>Sincerely</strong>,<br/>{request.user.first_name} {request.user.last_name}<br/>{request.user.email}",
+        body_style))
+
+    # Build the PDF
+    p.build(elements)
+
+
+    # if not existing_letter:
+    letter_content = "\n".join([element.text for element in elements if isinstance(element, Paragraph)])
+    SuspensionLetter.objects.create(student=student, case=case, content=letter_content)
+    pdf_content = buffer.getvalue() 
+    send_suspension_letter_email(student.email, pdf_content)
+
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="suspension_letter.pdf"'
+
+    print("PDF generated and response sent.")
+    return response
+
+
+
+@login_required
+def download_student_suspension_pdf(request):
+    student = request.user
+
+    current_date = timezone.now().strftime('%B %d, %Y')
+
+    # Create a buffer to hold the PDF
+    buffer = BytesIO()
+    p = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=2*cm, leftMargin=2*cm, topMargin=2*cm, bottomMargin=2*cm)
+
+    # Define styles for the PDF
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(name='Title', fontSize=18, leading=22, spaceAfter=14, fontName='Helvetica-Bold')
+    subtitle_style = ParagraphStyle(name='Subtitle', fontSize=14, leading=18, spaceAfter=10, fontName='Helvetica-Bold')
+    body_style = ParagraphStyle(name='Body', fontSize=12, leading=15, spaceAfter=12)
+
+    elements = []
+
+    # Header with Logo and Title
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    logo_path = os.path.join(current_dir, 'logo', 'logo.png')
+    logo = Image(logo_path, width=60, height=40)  # Adjusted size
+
+    header_table = Table([[logo, Paragraph("Suspension Letter", title_style)]])
+    header_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ALIGN', (1, 0), (1, 0), 'LEFT'),
+    ]))
+
+    elements.append(header_table)
+    elements.append(Spacer(1, 1 * cm))
+
+    # Student Details
+    elements.append(Paragraph("Student Details", subtitle_style))
+    elements.append(Paragraph(f"Name: {student.first_name} {student.last_name}", body_style))
+    elements.append(Paragraph(f"ID: {student.student_id}", body_style))
+    elements.append(Paragraph(f"Email: {student.email}", body_style))
+    elements.append(Paragraph(f"Date: {current_date}", body_style))
+    elements.append(Spacer(1, 1 * cm))
+
+    # Suspension Message
+    elements.append(Paragraph("Suspension Message", subtitle_style))
+    elements.append(Paragraph(f"Dear {student.first_name} {student.last_name},", body_style))
+    elements.append(Paragraph(
+        "We regret to inform you that due to recent incidents and violations of school policies, "
+        "you have been suspended from school for a period of two weeks, effective immediately. "
+        "Please contact the school administration for further details and to discuss the terms of your suspension.",
+        body_style))
+    elements.append(Paragraph(
+        "During this period, it is expected that you refrain from attending any school-related activities, "
+        "including classes and extracurricular activities. It is important to adhere to the terms outlined "
+        "in this suspension letter to ensure a smooth resolution of this matter.",
+        body_style))
+    elements.append(Paragraph(
+        "If there are any questions or concerns regarding this decision, please do not hesitate to contact "
+        "the school administration at your earliest convenience.",
+        body_style))
+    elements.append(Spacer(1, 1 * cm))
+
+    # Resignation Message
+    elements.append(Paragraph("Resignation Message", subtitle_style))
+    elements.append(Paragraph(
+        "If you have any concerns or wish to discuss the suspension, you may reach out to the "
+        "principal's office during working hours. We hope to resolve this matter amicably and "
+        "look forward to your cooperation.",
+        body_style))
+    elements.append(Paragraph(
+        "Please acknowledge receipt of this letter by signing and returning the attached acknowledgment form. "
+        "Your prompt attention to this matter is appreciated.",
+        body_style))
+    elements.append(Paragraph(
+        f"<strong>Sincerely</strong>,<br/>{request.user.first_name} {request.user.last_name}<br/>{request.user.email}",
+        body_style))
+
+    # Build the PDF
+    p.build(elements)
+
+    # Get the value of the BytesIO buffer and write it to the response.
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="suspension_letter.pdf"'
+
+    print("PDF generated and response sent.")
+    return response
 
 
 @user_passes_test(lambda u: u.is_superuser)
