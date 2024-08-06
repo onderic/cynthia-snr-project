@@ -1,5 +1,5 @@
 
-{% extends "layouts/_base_admin.html" %}
+{% extends "layouts/_office_admin.html" %}
 
 {% block content %}
 <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -107,7 +107,7 @@
                             <option value="no_decision" {% if case.decision == "no_decision" %}selected{% endif %}>No Decision</option>
                             <option value="suspended" {% if case.decision == "suspended" %}selected{% endif %}>Suspended</option>
                             <option value="probation" {% if case.decision == "probation" %}selected{% endif %}>Probation</option>
-                            <option value="forgiven" {% if case.decision == "forgiven" %}selected{% endif %}>Forgiven</option>
+                            <option value="forgiven" {% if case.decision == "forgiven" %}selected{% endif %}>Acquitted</option>
                         </select>
                     </div>
                     

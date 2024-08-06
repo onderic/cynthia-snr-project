@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from accounts.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import CaseForm
+from .forms import CaseForm, GeeksForm
 from .models import Case, Office, SuspensionLetter
 from django.views.decorators.csrf import csrf_exempt
 from reportlab.lib.pagesizes import A4
@@ -19,29 +19,45 @@ from io import BytesIO
 from .mail import send_suspension_letter_email 
 
 
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import User, Case
+
+
+def is_headoffice(user):
+    return user.user_type == 'headofoffice'
+
 @login_required
 def index(request):
     if request.user.is_staff:
         students_count = User.objects.filter(user_type='student').count()
         administrators_count = User.objects.filter(user_type='admin').count()
         cases_count = Case.objects.all().count()
-        cases = Case.objects.all().order_by('-date_reported')[:10]
 
         context = {
-            'cases': cases,
             'cases_count': cases_count,
             'students_count': students_count,
             'administrators_count': administrators_count,
         }
         return render(request, 'admin/admin_dashboard.html', context)
-    else:
+    
+    elif request.user.user_type == 'student':
         student = get_object_or_404(User, pk=request.user.pk)
         student_case_count = Case.objects.filter(student_id=student).count()
         cases = Case.objects.filter(student_id=student).order_by('-date_reported')[:5]
-        return render(request, 'student/index.html', {'student_case_count': student_case_count,"cases":cases})
+        return render(request, 'student/index.html', {'student_case_count': student_case_count, 'cases': cases})
+    
+    elif request.user.user_type == 'headofoffice':
+        cases = Case.objects.all().order_by('-date_reported')[:10]
+        context = {'cases': cases}
+        return render(request, 'office/case_management.html', context)
+    else:
+        pass
+
     
 
-@user_passes_test(lambda u: u.is_superuser)
+
+@user_passes_test(is_headoffice)
 @login_required
 def generate_suspension_pdf(request, case_id):
     case = get_object_or_404(Case, id=case_id)
@@ -315,7 +331,7 @@ def delete_user(request, user_id):
     return redirect('student-managament')
 
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_headoffice)
 def case_management(request):
     if request.method == 'POST':
         form = CaseForm(request.POST)
@@ -339,10 +355,11 @@ def case_management(request):
     offices = Office.objects.all()
     cases = Case.objects.all().order_by('-date_reported')
 
-    return render(request, 'admin/cases/case_management.html', {"form": form,"offices":offices, "students": students, "cases": cases})
+    return render(request, 'office/case_management.html', {"form": form,"offices":offices, "students": students, "cases": cases})
 
 
-@user_passes_test(lambda u: u.is_superuser)
+
+@user_passes_test(is_headoffice)
 def edit_case(request, case_id):
     case = get_object_or_404(Case, id=case_id)
     if request.method == 'POST':
@@ -371,10 +388,10 @@ def edit_case(request, case_id):
 
         offices = Office.objects.all()
     
-    return render(request, 'admin/cases/edit_case.html', {"form": form, "case": case, 'offices': offices})
+    return render(request, 'office/cases/edit_case.html', {"form": form, "case": case, 'offices': offices})
 
 
-@user_passes_test(lambda u: u.is_superuser)
+
 def delete_case(request, case_id):
     case = get_object_or_404(Case, id=case_id)
     try:
@@ -385,11 +402,11 @@ def delete_case(request, case_id):
     
     return redirect('admin-case-management')
 
-@user_passes_test(lambda u: u.is_superuser)
+@user_passes_test(is_headoffice)
 def reports(request,case_id):
     case = get_object_or_404(Case, id=case_id)
     student = case.student_id 
-    return render(request, 'admin/cases/reports.html', {
+    return render(request, 'office/cases/reports.html', {
         'case': case,
         'student': student,
     })
@@ -436,5 +453,6 @@ def delete_office(request, office_id):
         messages.success(request, 'Office deleted successfully.')
     
     return redirect('add_office') 
+
 
 

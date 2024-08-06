@@ -58,3 +58,11 @@ class SuspensionLetter(models.Model):
 
     def __str__(self):
         return f"Suspension Letter for {self.student.first_name} {self.student.last_name} (Case: {self.case.case_title})"
+    
+
+class Image(models.Model):
+    name = models.CharField(max_length=200)
+    image = models.ImageField(upload_to='images/') 
+
+    def __str__(self):
+        return self.name

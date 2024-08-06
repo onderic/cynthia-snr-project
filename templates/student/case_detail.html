@@ -118,15 +118,15 @@
                             cy="18"
                             r="15.9155"
                             stroke="currentColor"
-                            style="stroke-dasharray: {% if case.status == 'open' %}15, 100{% elif case.status == 'in_progress' %}75, 100{% elif case.status == 'closed' %}100, 100{% else %}0, 100{% endif %};"
+                            style="stroke-dasharray: {% if case.office.name == 'Dvc SAAS office' %}15, 100{% elif case.office.name == 'student dean' %}75, 100{% elif case.office.name == 'Senate' %}100, 100{% else %}0, 100{% endif %};"
                         />
                     </svg>
                     <span class="text-2xl font-semibold text-blue-600 absolute inset-0 flex items-center justify-center">
-                        {% if case.status == 'open' %}
+                        {% if case.office.name == 'Dvc SAAS office' %}
                             15%
-                        {% elif case.status == 'in_progress' %}
+                        {% elif case.office.name == 'student dean' %}
                             75%
-                        {% elif case.status == 'closed' %}
+                        {% elif case.office.name == 'Senate' %}
                             100%
                         {% else %}
                             0%
@@ -137,7 +137,7 @@
                 <!-- Add more details or actions related to other relevant details -->
             </div>
             
-            
+            {% if case.decision == "suspended"%}
             <div class="flex justify-end mt-4" >
                 <div class="max-w-2xl w-full bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
                     <div class="p-6">
@@ -148,7 +148,7 @@
                         </div>
                         <img src="{% static 'images/logo.png' %}" alt="School Logo" class="h-12">
                       </div>
-                      {% if case.decision == "suspended"%}
+                     
                       <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
                         {% if user.is_authenticated %}
                         <div class="mb-6 ">
@@ -190,17 +190,12 @@
                         </a>
                     </div>
                     
-                    
-                      {% else %}
-                      <div >
-                        <h5 class="text-red-600 dark:text-red-400 font-semibold">
-                            SUSPENSION LETTER ONLY AVAILABLE FOR SUSPENDED STUDENTS
-                        </h5>
-                    </div>
-                      {% endif %}
+                  
+                     
                     </div>
                   </div>
             </div>
+            {% endif %}
         </div>
         
       

@@ -23,7 +23,6 @@ def login_view(request):
         user = authenticate(request, email=email, password=password)
         if user is not None:
             login(request, user)
-            # Redirect to the next page if it exists, otherwise redirect to a default page
             next_page = request.GET.get('next', '/') 
             return redirect(next_page)
         else:

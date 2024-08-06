@@ -1,5 +1,5 @@
 
-{% extends "layouts/_base_admin.html" %}
+{% extends "layouts/_office_admin.html" %}
 {% load static %}
 {% block content %}
         <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -90,27 +90,27 @@
                 stroke="currentColor"
             />
             <circle
-                class="text-blue-600"
-                stroke-width="4"
-                stroke-linecap="round"
-                fill="none"
-                cx="18"
-                cy="18"
-                r="15.9155"
-                stroke="currentColor"
-                style="stroke-dasharray: {% if case.status == 'open' %}15, 100{% elif case.status == 'in_progress' %}75, 100{% elif case.status == 'closed' %}100, 100{% else %}0, 100{% endif %};"
-            />
+            class="text-blue-600"
+            stroke-width="4"
+            stroke-linecap="round"
+            fill="none"
+            cx="18"
+            cy="18"
+            r="15.9155"
+            stroke="currentColor"
+            style="stroke-dasharray: {% if case.office.name == 'Dvc SAAS office' %}15, 100{% elif case.office.name == 'student dean' %}75, 100{% elif case.office.name == 'Senate' %}100, 100{% else %}0, 100{% endif %};"
+        />
         </svg>
         <span class="text-2xl font-semibold text-blue-600">
-            {% if case.status == 'open' %}
-                15%
-            {% elif case.status == 'in_progress' %}
-                75%
-            {% elif case.status == 'closed' %}
-                100%
-            {% else %}
-                0%
-            {% endif %}
+          {% if case.office.name == 'Dvc SAAS office' %}
+              15%
+          {% elif case.office.name == 'student dean' %}
+              75%
+          {% elif case.office.name == 'Senate' %}
+              100%
+          {% else %}
+              0%
+          {% endif %}
         </span>
     </div>
     

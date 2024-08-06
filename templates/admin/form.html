@@ -1,0 +1,26 @@
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="file" name="images" multiple>
+    <input type="submit" value="Submit">
+</form>
+
+{% if images %}
+    <h2>Uploaded Images:</h2>
+    <ul>
+        {% for image in images %}
+            <li>
+                <p><strong>{{ image.name }}</strong></p>
+                <img src="{{ image.image.url }}" alt="{{ image.name }}" style="max-width: 200px; height: auto;">
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
